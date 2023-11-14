@@ -39,6 +39,7 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "1.5.3",
-    "axios": "^1.5.1"
+    "axios": "^1.5.1",
+    "moment": "^2.29.4"
   }
 }
