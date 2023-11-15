@@ -6,6 +6,7 @@
 
 	// Stores
 	import { ProgressRadial, getModalStore } from '@skeletonlabs/skeleton';
+	import { onDestroy } from 'svelte';
 	const modalStore = getModalStore();
 	const cBase = 'card p-4 shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
@@ -14,10 +15,35 @@
 
 	let log: string = '';
 
-	async function loadLogHistory() {
-		const response = await axios.get<{ log: string }>(`/v1/server/${server.id}/log`);
-		log = response.data.log;
+	let preHTMLElement: HTMLPreElement;
+	let eventSource: EventSource;
+
+	function startStream(){
+		eventSource = new EventSource(`${axios.defaults.baseURL}/v1/server/${server.id}/log/stream`);
+		eventSource.onmessage = (event) => {
+			console.log({EventSource: event.data});
+			log += event.data + '\n';
+			if(preHTMLElement){
+				preHTMLElement.scrollTop = preHTMLElement.scrollHeight;
+			}
+		};
+		eventSource.onerror = (error) => {
+			console.error('EventSource error:', error);
+		};
 	}
+
+	async function loadLogHistory() {
+		log = '';
+		startStream();
+		const response = await axios.get<{ log: string }>(`/v1/server/${server.id}/log`);
+		log = response.data.log + log;
+	}
+
+	onDestroy(() => {
+		if(eventSource){
+			eventSource.close();
+		}
+	});
 </script>
 
 <!-- @component This example creates a simple form modal. -->
@@ -39,7 +65,8 @@
 				</button>
 			</header>
 			<pre
-				class="h-[70vh] variant-filled rounded-container-token px-3 py-2"
+				bind:this={preHTMLElement}
+				class="h-[70vh] variant-filled rounded-container-token px-3 py-2 overflow-auto"
 				bind:innerText={log}
 				contenteditable="false"
 			/>

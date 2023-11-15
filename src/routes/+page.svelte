@@ -213,16 +213,6 @@
 							</table>
 						</div>
 						<div>
-							<FetchButton
-								type="button"
-								class="btn variant-filled btn-sm"
-								fetch={async () => {
-									await axios.post('/v1/action/start', { id: server.id });
-									loadStatus();
-								}}
-							>
-								Backup Now 📦
-							</FetchButton>
 							<button
 								type="button"
 								class="btn variant-filled btn-sm"
@@ -232,6 +222,26 @@
 							>
 								Logs 📜
 							</button>
+							<FetchButton
+								type="button"
+								class="btn variant-filled btn-sm"
+								fetch={async () => {
+									await axios.post('/v1/action/stop', { id: server.id });
+									loadStatus();
+								}}
+							>
+								Stop 🛑
+							</FetchButton>
+							<FetchButton
+								type="button"
+								class="btn variant-filled btn-sm"
+								fetch={async () => {
+									await axios.post('/v1/action/start', { id: server.id });
+									loadStatus();
+								}}
+							>
+								Run ▶️
+							</FetchButton>
 						</div>
 					</section>
 				</div>
