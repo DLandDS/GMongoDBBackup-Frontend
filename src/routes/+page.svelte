@@ -12,6 +12,7 @@
 	async function getData() {
 		const response = await axios.get<Server[]>('/v1/server');
 		servers = response.data;
+		await loadStatus();
 	}
 
 	function removeServer(server: Server) {
@@ -62,10 +63,23 @@
 	let instance = {};
 
 	async function loadStatus() {
-		const response = await axios.post('/v1/status', { id: servers.map((s) => s.id) });
+		const response = await axios.post<{ [x: string]: { lastBackup: string, status: string} }>('/v1/status', { id: servers?.map((s) => s.id) || [] });
+		servers = servers.map((s) => {
+			const status = response.data[s.id];
+			if (status) {
+				s.lastBackup = status.lastBackup? status.lastBackup: s.lastBackup;
+				s.status = status.status? status.status: s.status;
+			}
+			return s;
+		});
 	}
 
-	onMount(async () => {});
+	onMount(() => {
+		const interval = setInterval(loadStatus, 3000);
+		return () => {
+			clearInterval(interval)
+		};
+	});
 </script>
 
 <div class="container h-full mx-auto flex flex-col gap-2 px-2">
@@ -152,6 +166,7 @@
 								class="btn variant-filled btn-sm"
 								fetch={async () => {
 									await axios.post('/v1/action/start', { id: server.id });
+									loadStatus();
 								}}
 							>
 								Backup Now
