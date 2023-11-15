@@ -2,7 +2,9 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	export let fetch: () => Promise<void>;
+
 	let isLoading = false;
+	export let disabled: boolean = false;
 
 	async function handleClick() {
 		try {
@@ -16,7 +18,7 @@
 	}
 </script>
 
-<button {...$$restProps} on:click={handleClick} disabled={isLoading}>
+<button {...$$restProps} on:click={handleClick} disabled={isLoading || disabled}>
     <div class="flex items-center">
 	<slot />
 	{#if isLoading}

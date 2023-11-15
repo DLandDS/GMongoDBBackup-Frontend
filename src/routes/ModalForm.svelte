@@ -8,6 +8,7 @@
 	// Stores
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import axios from 'axios';
+	import mergeObjects from '$lib/mergeObject';
 	const modalStore = getModalStore();
 
 	// Form Data
@@ -20,18 +21,32 @@
 
 	const server = ($modalStore[0] as any).server as Server | undefined;
 
-	const formData = server
-		? { ...server, id: undefined }
-		: {
-				name: 'MongoDB',
-				uri: 'mongodb://localhost:27017',
-				interval: 30,
-		  };
+	const formData = mergeObjects(
+		{
+			name: 'MongoDB',
+			uri: 'mongodb://localhost:27017',
+			interval: 30
+		},
+		server || {}
+	);
 
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
 	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';
+
+	async function testConnection() {
+		const response = await axios.post('/v1/util/connection-test', { uri: formData.uri });
+		connectionStatus = response.data;
+	}
+
+	let connectionStatus: {
+		success: boolean;
+		message: string;
+	} = {
+		success: false,
+		message: ''
+	};
 </script>
 
 <!-- @component This example creates a simple form modal. -->
@@ -47,18 +62,31 @@
 				<input class="input" type="text" bind:value={formData.name} placeholder="Enter name..." />
 			</label>
 			<label class="label">
-				<span>Uri</span>
-				<input class="input" type="url" bind:value={formData.uri} placeholder="Enter URI..." />
+				<div class="flex flex-col gap-1">
+					<span>Uri</span>
+					<div class="flex flex-row gap-2">
+						<input class="input" type="url" bind:value={formData.uri} placeholder="Enter URI..." />
+						<FetchButton class="btn variant-filled" fetch={testConnection}>Test</FetchButton>
+					</div>
+					{#if connectionStatus.message}
+						<span class={connectionStatus.success?"text-green-600":"text-red-600"}>Status: {connectionStatus.message}</span>
+					{/if}
+				</div>
 			</label>
 			<label class="label">
 				<span>Interval (minute)</span>
-				<input class="input" type="number" bind:value={formData.interval} placeholder="Enter URI..." />
+				<input
+					class="input"
+					type="number"
+					bind:value={formData.interval}
+					placeholder="Enter URI..."
+				/>
 			</label>
 		</form>
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
         <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-		<FetchButton class="btn {parent.buttonPositive}" fetch={async () => {
+		<FetchButton class="btn {parent.buttonPositive}" disabled={!connectionStatus.success}  fetch={async () => {
 			// delay for 2 
 			if(server) {
 				await axios.put("/v1/server/" + server.id, formData);
