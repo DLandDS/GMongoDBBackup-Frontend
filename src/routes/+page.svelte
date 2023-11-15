@@ -63,12 +63,15 @@
 	let instance = {};
 
 	async function loadStatus() {
-		const response = await axios.post<{ [x: string]: { lastBackup: string, status: string} }>('/v1/status', { id: servers?.map((s) => s.id) || [] });
+		const response = await axios.post<{ [x: string]: { lastBackup: string; status: string } }>(
+			'/v1/status',
+			{ id: servers?.map((s) => s.id) || [] }
+		);
 		servers = servers.map((s) => {
 			const status = response.data[s.id];
 			if (status) {
-				s.lastBackup = status.lastBackup? status.lastBackup: s.lastBackup;
-				s.status = status.status? status.status: s.status;
+				s.lastBackup = status.lastBackup ? status.lastBackup : s.lastBackup;
+				s.status = status.status ? status.status : s.status;
 			}
 			return s;
 		});
@@ -77,7 +80,7 @@
 	onMount(() => {
 		const interval = setInterval(loadStatus, 3000);
 		return () => {
-			clearInterval(interval)
+			clearInterval(interval);
 		};
 	});
 </script>
@@ -134,31 +137,49 @@
 					</header>
 					<section class="p-4 flex flex-row">
 						<div class="flex flex-col flex-grow">
-							<span>
-								Status: {#if server.status}{server.status}{:else}<ProgressRadial
-										class="inline-block"
-										width="w-4"
-										stroke={100}
-										meter="stroke-primary-500"
-										track="stroke-primary-500/30"
-									/>
-								{/if}
-							</span>
-							<span>
-								Last backup: {#if server.lastBackup}
-									{#if new Date(server.lastBackup).getTime() > 0}
-										{parseTime(server.lastBackup)}{:else}Never{/if}
-								{:else}
-									<ProgressRadial
-										class="inline-block"
-										width="w-4"
-										stroke={100}
-										meter="stroke-primary-500"
-										track="stroke-primary-500/30"
-									/>
-								{/if}
-							</span>
-							<span>Interval: {server.interval} minute(s)</span>
+							<table class="mr-auto border-separate border-spacing-x-2">
+								<tr>
+									<td>Status</td>
+									<td>:</td>
+									<td>
+										<span>
+											{#if server.status}{server.status}{:else}<ProgressRadial
+													class="inline-block"
+													width="w-4"
+													stroke={100}
+													meter="stroke-primary-500"
+													track="stroke-primary-500/30"
+												/>
+											{/if}
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td>Last backup</td>
+									<td>:</td>
+									<td>
+										<span>
+											{#if server.lastBackup}
+												{#if new Date(server.lastBackup).getTime() > 0}
+													{parseTime(server.lastBackup)}{:else}Never{/if}
+											{:else}
+												<ProgressRadial
+													class="inline-block"
+													width="w-4"
+													stroke={100}
+													meter="stroke-primary-500"
+													track="stroke-primary-500/30"
+												/>
+											{/if}
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td>Interval</td>
+									<td>:</td>
+									<td>{server.interval} minute(s)</td>
+								</tr>
+							</table>
 						</div>
 						<div>
 							<FetchButton
