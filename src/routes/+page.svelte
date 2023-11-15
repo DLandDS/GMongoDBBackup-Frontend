@@ -60,6 +60,21 @@
 		});
 	}
 
+	function logServer(server: Server){
+		return new Promise<boolean>((resolve) => {
+			const modal: ModalSettings & { server: Server } = {
+				body: 'Edit a server from the list.',
+				type: 'component',
+				component: 'logs',
+				server,
+				response: async (r: boolean) => {
+					resolve(r);
+				}
+			};
+			modalStore.trigger(modal);
+		});
+	}
+
 	let instance = {};
 
 	async function loadStatus() {
@@ -206,8 +221,17 @@
 									loadStatus();
 								}}
 							>
-								Backup Now
+								Backup Now 📦
 							</FetchButton>
+							<button
+								type="button"
+								class="btn variant-filled btn-sm"
+								on:click={() => {
+									logServer(server);
+								}}
+							>
+								Logs 📜
+							</button>
 						</div>
 					</section>
 				</div>

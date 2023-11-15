@@ -7,6 +7,7 @@
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import initializeAxiosConfig from '$lib/axios-interceptor';
 	import ModalForm from './ModalForm.svelte';
+	import ModalLog from './ModalLog.svelte';
 
 	initializeStores();
 	initializeAxiosConfig()
@@ -16,6 +17,9 @@
 		form: {
 			ref: ModalForm,
 		},
+		logs: {
+			ref: ModalLog,
+		}
 	};
 </script>
 
@@ -39,4 +43,3 @@
 </AppShell>
 <Toast position="br" zIndex="z-50" />
 <Modal components={modalComponentRegistry} zIndex="z-40" />
-
