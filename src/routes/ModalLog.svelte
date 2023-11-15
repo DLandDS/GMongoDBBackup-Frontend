@@ -23,13 +23,17 @@
 		eventSource.onmessage = (event) => {
 			console.log({EventSource: event.data});
 			log += event.data + '\n';
-			if(preHTMLElement){
-				preHTMLElement.scrollTop = preHTMLElement.scrollHeight;
-			}
+			scrollToBottom();
 		};
 		eventSource.onerror = (error) => {
 			console.error('EventSource error:', error);
 		};
+	}
+
+	function scrollToBottom(){
+		if(preHTMLElement){
+			preHTMLElement.scrollTop = preHTMLElement.scrollHeight;
+		}
 	}
 
 	async function loadLogHistory() {
@@ -37,6 +41,7 @@
 		startStream();
 		const response = await axios.get<{ log: string }>(`/v1/server/${server.id}/log`);
 		log = response.data.log + log;
+		setTimeout(scrollToBottom, 100);
 	}
 
 	onDestroy(() => {
