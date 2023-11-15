@@ -9,7 +9,10 @@ export type Server = {
 };
 
 export type ServerDisplay = {
-	status?: string;
+	status?: {
+		type: StatusType;
+		message: string;
+	};
 } & Server;
 
 
@@ -31,4 +34,10 @@ export function parseTime(time: string): string {
 	}
 }
 
+export const StatusType = {
+	Running: "running",
+	Ready: "ready",
+	Error: "error",
+} as const;
 
+export type StatusType = typeof StatusType[keyof typeof StatusType];

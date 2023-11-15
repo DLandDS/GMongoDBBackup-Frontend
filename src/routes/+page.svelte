@@ -2,7 +2,7 @@
 	import FetchButton from '$lib/component/FetchButton.svelte';
 	import { getModalStore, ProgressRadial, type ModalSettings } from '@skeletonlabs/skeleton';
 	import axios from 'axios';
-	import { parseTime, type Server, type ServerDisplay } from './page';
+	import { parseTime, StatusType, type Server, type ServerDisplay } from './page';
 	import { onMount } from 'svelte';
 
 	const modalStore = getModalStore();
@@ -63,10 +63,15 @@
 	let instance = {};
 
 	async function loadStatus() {
-		const response = await axios.post<{ [x: string]: { lastBackup: string; status: string } }>(
-			'/v1/status',
-			{ id: servers?.map((s) => s.id) || [] }
-		);
+		const response = await axios.post<{
+			[x: string]: {
+				lastBackup: string;
+				status: {
+					type: StatusType;
+					message: string;
+				};
+			};
+		}>('/v1/status', { id: servers?.map((s) => s.id) || [] });
 		servers = servers.map((s) => {
 			const status = response.data[s.id];
 			if (status) {
@@ -109,7 +114,7 @@
 			/>
 		{:then _}
 			{#each servers as server}
-				<div class="card w-full shadow-md">
+					<div class="card w-full shadow-md">
 					<header class="card-header flex justify-between">
 						<h4 class="h4">{server.name}</h4>
 						<div class="flex gap-1">
@@ -143,7 +148,18 @@
 									<td>:</td>
 									<td>
 										<span>
-											{#if server.status}{server.status}{:else}<ProgressRadial
+											{#if server.status}
+												{#if server.status.type == StatusType.Ready} 
+													🟢
+												{:else if server.status.type == StatusType.Running}
+													🟡
+												{:else if server.status.type == StatusType.Error}
+													🔴
+												{:else}
+													🟢
+												{/if}
+												{server.status.message}
+											{:else}<ProgressRadial
 													class="inline-block"
 													width="w-4"
 													stroke={100}
