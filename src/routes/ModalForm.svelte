@@ -44,7 +44,7 @@
 		success: boolean;
 		message: string;
 	} = {
-		success: false,
+		success: server? true : false,
 		message: ''
 	};
 </script>
