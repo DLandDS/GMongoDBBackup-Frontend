@@ -60,7 +60,7 @@
 		});
 	}
 
-	function logServer(server: Server){
+	function logServer(server: Server) {
 		return new Promise<boolean>((resolve) => {
 			const modal: ModalSettings & { server: Server } = {
 				body: 'Edit a server from the list.',
@@ -85,6 +85,7 @@
 					type: StatusType;
 					message: string;
 				};
+				enabled: boolean;
 			};
 		}>('/v1/status', { id: servers?.map((s) => s.id) || [] });
 		servers = servers.map((s) => {
@@ -92,6 +93,7 @@
 			if (status) {
 				s.lastBackup = status.lastBackup ? status.lastBackup : s.lastBackup;
 				s.status = status.status ? status.status : s.status;
+				s.enabled = status.enabled !== undefined ? status.enabled : s.enabled;
 			}
 			return s;
 		});
@@ -129,7 +131,7 @@
 			/>
 		{:then _}
 			{#each servers as server}
-					<div class="card w-full shadow-md">
+				<div class="card w-full shadow-md">
 					<header class="card-header flex justify-between">
 						<h4 class="h4">{server.name}</h4>
 						<div class="flex gap-1">
@@ -164,14 +166,16 @@
 									<td>
 										<span>
 											{#if server.status}
-												{#if server.status.type == StatusType.Ready} 
+												{#if server.status.type == StatusType.Inactive}
+													⭕
+												{:else if server.status.type == StatusType.Ready}
 													🟢
 												{:else if server.status.type == StatusType.Running}
 													🟡
 												{:else if server.status.type == StatusType.Error}
 													🔴
 												{:else}
-													🟢
+													🔵
 												{/if}
 												{server.status.message}
 											{:else}<ProgressRadial
@@ -222,6 +226,29 @@
 							>
 								Logs 📜
 							</button>
+
+							<FetchButton
+								type="button"
+								class="btn variant-filled btn-sm"
+								fetch={async () => {
+									console.log(server.enabled);
+									if (server.enabled) {
+										await axios.post('/v1/action/disable', { id: server.id });
+									} else {
+										await axios.post('/v1/action/enable', { id: server.id });
+									}
+									loadStatus();
+								}}
+							>
+								{#key server}
+									{#if server.enabled}
+										Disable ⛔
+									{:else}
+										Enable ✅
+									{/if}
+								{/key}
+							</FetchButton>
+
 							<FetchButton
 								type="button"
 								class="btn variant-filled btn-sm"

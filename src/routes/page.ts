@@ -6,6 +6,7 @@ export type Server = {
 	uri: string;
 	interval: number;
 	lastBackup: string;
+	enabled: boolean;
 };
 
 export type ServerDisplay = {
@@ -38,6 +39,7 @@ export const StatusType = {
 	Running: "running",
 	Ready: "ready",
 	Error: "error",
+	Inactive: "inactive",
 } as const;
 
 export type StatusType = typeof StatusType[keyof typeof StatusType];
