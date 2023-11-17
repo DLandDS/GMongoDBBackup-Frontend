@@ -25,7 +25,8 @@
 		{
 			name: 'MongoDB',
 			uri: 'mongodb://localhost:27017',
-			interval: 30
+			interval: 30,
+			gdriveDirId: ''
 		},
 		server || {}
 	);
@@ -35,12 +36,25 @@
 	const cHeader = 'text-2xl font-bold';
 	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';
 
-	async function testConnection() {
-		const response = await axios.post('/v1/util/connection-test', { uri: formData.uri });
-		connectionStatus = response.data;
+	async function testDBConnection() {
+		const response = await axios.post('/v1/util/db-connection-test', { uri: formData.uri });
+		dbConnectionStatus = response.data;
 	}
 
-	let connectionStatus: {
+	async function gdriveDirCheck() {
+		const response = await axios.post('/v1/util/grdiveDir-check', { id: formData.gdriveDirId });
+		grdiveDirCheckStatus = response.data;
+	}
+
+	let dbConnectionStatus: {
+		success: boolean;
+		message: string;
+	} = {
+		success: server? true : false,
+		message: ''
+	};
+
+	let grdiveDirCheckStatus: {
 		success: boolean;
 		message: string;
 	} = {
@@ -66,10 +80,10 @@
 					<span>Uri</span>
 					<div class="flex flex-row gap-2">
 						<input class="input" type="url" bind:value={formData.uri} placeholder="Enter URI..." />
-						<FetchButton class="btn variant-filled" fetch={testConnection}>Test</FetchButton>
+						<FetchButton class="btn variant-filled" fetch={testDBConnection}>Test</FetchButton>
 					</div>
-					{#if connectionStatus.message}
-						<span class={connectionStatus.success?"text-green-600":"text-red-600"}>Status: {connectionStatus.message}</span>
+					{#if dbConnectionStatus.message}
+						<span class={dbConnectionStatus.success?"text-green-600":"text-red-600"}>Status: {dbConnectionStatus.message}</span>
 					{/if}
 				</div>
 			</label>
@@ -82,11 +96,23 @@
 					placeholder="Enter URI..."
 				/>
 			</label>
+			<label class="label">
+				<div class="flex flex-col gap-1">
+					<span>Custom Directory ID (Optional)</span>
+					<div class="flex flex-row gap-2">
+						<input class="input" type="url" bind:value={formData.gdriveDirId} placeholder="Enter GDrive Directory ID..." />
+						<FetchButton class="btn variant-filled" fetch={gdriveDirCheck}>Check</FetchButton>
+					</div>
+					{#if grdiveDirCheckStatus.message}
+						<span class={grdiveDirCheckStatus.success?"text-green-600":"text-red-600"}>Status: {grdiveDirCheckStatus.message}</span>
+					{/if}
+				</div>
+			</label>
 		</form>
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">
         <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-		<FetchButton class="btn {parent.buttonPositive}" disabled={!connectionStatus.success}  fetch={async () => {
+		<FetchButton class="btn {parent.buttonPositive}" disabled={!dbConnectionStatus.success && (formData.gdriveDirId? grdiveDirCheckStatus.success: true)}  fetch={async () => {
 			// delay for 2 
 			if(server) {
 				await axios.put("/v1/server/" + server.id, formData);
