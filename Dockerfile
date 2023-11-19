@@ -1,6 +1,6 @@
 
 # Step 1: Build the application
-FROM oven/bun AS builder
+FROM oven/bun:1.0.13-slim as base
 
 # Set the working directory in the container
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN bun i
 RUN bun run build
 
 # Step 2: Create a smaller image for running the application
-FROM oven/bun
+FROM base as release
 
 # Copy only the necessary files from the builder image to the final image
 COPY --from=builder /app/build .
