@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar, getToastStore, type ModalComponent, Modal } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, type ModalComponent, Modal } from '@skeletonlabs/skeleton';
 	import { Toast } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';

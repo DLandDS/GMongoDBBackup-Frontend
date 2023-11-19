@@ -1,0 +1,11 @@
+*
+!src/
+!static/
+!bun.lockb
+!package.json
+!postcss.config.cjs
+!tailwind.config.ts
+!svelte.config.js
+!tsconfig.json
+!vite.config.ts
+!.env
