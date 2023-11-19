@@ -16,7 +16,7 @@ RUN bun run build
 FROM base as release
 
 # Copy only the necessary files from the builder image to the final image
-COPY --from=builder /app/build .
+COPY --from=base /app/build .
 
 # Expose the port the application will run on
 EXPOSE 3000
