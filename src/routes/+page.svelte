@@ -99,8 +99,25 @@
 		});
 	}
 
+	const lostConnectionModal: ModalSettings = {
+		type: 'alert',
+		title: 'Connection Lost',
+		body: 'Please refresh the page to reconnect.',
+		buttonTextCancel: 'Refresh',
+		response: () => {
+			window.location.reload();
+		}
+	};
+
 	onMount(() => {
-		const interval = setInterval(loadStatus, 3000);
+		const interval = setInterval(async () => {
+			try {
+				await loadStatus();
+			} catch(e){
+				modalStore.trigger(lostConnectionModal);
+				clearInterval(interval);
+			}
+		}, 3000);
 		return () => {
 			clearInterval(interval);
 		};
