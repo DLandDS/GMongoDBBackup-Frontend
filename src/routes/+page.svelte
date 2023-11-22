@@ -1,11 +1,12 @@
 <script lang="ts">
 	import FetchButton from '$lib/component/FetchButton.svelte';
-	import { getModalStore, ProgressRadial, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { getModalStore, ProgressRadial, type ModalSettings, getToastStore } from '@skeletonlabs/skeleton';
 	import axios from 'axios';
 	import { parseTime, StatusType, type Server, type ServerDisplay } from './page';
 	import { onMount } from 'svelte';
 
 	const modalStore = getModalStore();
+	const toastStore = getToastStore();
 
 	let servers: ServerDisplay[] = [];
 
@@ -24,6 +25,10 @@
 				response: async (r: boolean) => {
 					if (r) {
 						await axios.delete(`/v1/server/${server.id}`);
+						toastStore.trigger({
+						message: "Server removed",
+						background: 'variant-filled-primary'
+					});
 					}
 					resolve(r);
 				}

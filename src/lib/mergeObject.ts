@@ -14,7 +14,7 @@ export default function mergeObjects<T extends object>(
                 ) {
                     obj[property] = mergeObjects(obj[property], obj2[property]);
                 } else {
-                    obj[property] = obj2[property];
+                    obj[property] = obj2[property] === null? obj[property]: obj2[property];
                 }
             }
         }

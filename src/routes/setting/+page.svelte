@@ -1,6 +1,6 @@
 <script lang="ts">
 	import FetchButton from '$lib/component/FetchButton.svelte';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import { ProgressRadial, getToastStore } from '@skeletonlabs/skeleton';
 	import axios from 'axios';
 
 	let settings: any;
@@ -14,6 +14,8 @@
         const response = await axios.patch('/v1/setting', settings);
         settings = response.data;
     }
+
+	const toastStore = getToastStore();
 </script>
 
 <div class="container h-full mx-auto flex flex-col gap-2 px-2">
@@ -30,7 +32,10 @@
 			<h3 class="h3">Setting</h3>
 			<FetchButton class="btn variant-filled" fetch={async () => {
                 await saveSetting();
-                
+                toastStore.trigger({
+					message: "Setting saved",
+					background: 'variant-filled-primary'
+				});
             }}>
                 Save
             </FetchButton>

@@ -6,10 +6,11 @@
 
 	import FetchButton from '$lib/component/FetchButton.svelte';
 	// Stores
-	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 	import axios from 'axios';
 	import mergeObjects from '$lib/mergeObject';
 	const modalStore = getModalStore();
+	const toastStore = getToastStore();
 
 	// Form Data
 
@@ -116,9 +117,16 @@
 			// delay for 2 
 			if(server) {
 				await axios.put("/v1/server/" + server.id, formData);
-
+				toastStore.trigger({
+					message: "Server updated",
+					background: 'variant-filled-primary'
+				});
 			} else {
 				await axios.post("/v1/server", formData);
+				toastStore.trigger({
+					message: "Server added",
+					background: 'variant-filled-primary'
+				});
 			}
 			onFormSubmit();
 		}}>
